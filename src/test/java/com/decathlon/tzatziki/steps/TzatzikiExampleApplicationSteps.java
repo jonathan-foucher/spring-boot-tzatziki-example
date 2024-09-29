@@ -1,4 +1,4 @@
-package com.jonathanfoucher.tzatzikiexample.steps;
+package com.decathlon.tzatziki.steps;
 
 import com.jonathanfoucher.tzatzikiexample.TzatzikiExampleApplication;
 import io.cucumber.spring.CucumberContextConfiguration;

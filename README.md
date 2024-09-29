@@ -23,3 +23,8 @@ curl --location --request POST 'http://localhost:8080/tzatziki-example/jobs?name
 The integration tests are written in `/test/resources/features` folder
 
 Docker must be running to launch the integration tests since Testcontainers will start a postgres database for the tests.
+
+To launch all the tests (unit + integration), simply use :
+```
+mvn clean test
+```

@@ -18,6 +18,11 @@ public class JobController {
         return jobService.getAllJobs();
     }
 
+    @GetMapping("/{id}")
+    public JobDto getJobById(@PathVariable Long id) {
+        return jobService.getJobById(id);
+    }
+
     @PostMapping
     public Long createJob(@RequestParam String name) {
         return jobService.createJob(name);

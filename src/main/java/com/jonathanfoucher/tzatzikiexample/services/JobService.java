@@ -3,6 +3,7 @@ package com.jonathanfoucher.tzatzikiexample.services;
 import com.jonathanfoucher.tzatzikiexample.data.dto.JobDto;
 import com.jonathanfoucher.tzatzikiexample.data.model.Job;
 import com.jonathanfoucher.tzatzikiexample.data.repository.JobRepository;
+import com.jonathanfoucher.tzatzikiexample.errors.JobNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,12 @@ public class JobService {
                 .stream()
                 .map(this::convertEntityToDto)
                 .toList();
+    }
+
+    public JobDto getJobById(Long id) {
+        return jobRepository.findById(id)
+                .map(this::convertEntityToDto)
+                .orElseThrow(() -> new JobNotFoundException(id));
     }
 
     public Long createJob(String name) {

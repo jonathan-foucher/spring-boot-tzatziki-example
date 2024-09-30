@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jonathanfoucher.tzatzikiexample.data.dto.JobDto;
 import com.jonathanfoucher.tzatzikiexample.data.model.Job;
 import com.jonathanfoucher.tzatzikiexample.data.repository.JobRepository;
+import com.jonathanfoucher.tzatzikiexample.errors.JobNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,10 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -69,6 +72,35 @@ class JobServiceTest {
 
         assertNotNull(results);
         assertEquals(0, results.size());
+    }
+
+    @Test
+    void getJobById() {
+        // GIVEN
+        Job job = initJob();
+
+        when(jobRepository.findById(ID))
+                .thenReturn(Optional.of(job));
+
+        // WHEN
+        JobDto result = jobService.getJobById(ID);
+
+        // THEN
+        verify(jobRepository, times(1)).findById(ID);
+
+        checkJobDto(result);
+    }
+
+    @Test
+    void getJobByIdWithJobNotFound() {
+        // GIVEN
+        when(jobRepository.findById(ID))
+                .thenReturn(Optional.empty());
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> jobService.getJobById(ID))
+                .isInstanceOf(JobNotFoundException.class)
+                .hasMessage("Job not found for id=" + ID);
     }
 
     @Test

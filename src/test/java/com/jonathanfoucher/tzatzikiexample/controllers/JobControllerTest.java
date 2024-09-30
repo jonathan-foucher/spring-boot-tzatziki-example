@@ -1,7 +1,9 @@
 package com.jonathanfoucher.tzatzikiexample.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jonathanfoucher.tzatzikiexample.controllers.advices.GlobalControllerExceptionHandler;
 import com.jonathanfoucher.tzatzikiexample.data.dto.JobDto;
+import com.jonathanfoucher.tzatzikiexample.errors.JobNotFoundException;
 import com.jonathanfoucher.tzatzikiexample.services.JobService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,15 +26,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(JobController.class)
-@SpringJUnitConfig(JobController.class)
+@SpringJUnitConfig({JobController.class, GlobalControllerExceptionHandler.class})
 class JobControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private JobController jobController;
+    @Autowired
+    private GlobalControllerExceptionHandler globalControllerExceptionHandler;
     @MockBean
     private JobService jobService;
 
     private static final String JOB_PATH = "/jobs";
+    private static final String JOB_ID_PATH = "/jobs/{id}";
     private static final Long ID = 15L;
     private static final String NAME = "SOME_JOB";
 
@@ -41,6 +46,7 @@ class JobControllerTest {
     @BeforeEach
     void initEach() {
         mockMvc = MockMvcBuilders.standaloneSetup(jobController)
+                .setControllerAdvice(globalControllerExceptionHandler)
                 .setMessageConverters(new MappingJackson2HttpMessageConverter())
                 .build();
     }
@@ -75,6 +81,38 @@ class JobControllerTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(emptyList())));
 
         verify(jobService, times(1)).getAllJobs();
+    }
+
+    @Test
+    void getJobById() throws Exception {
+        // GIVEN
+        JobDto job = initJobDto();
+
+        when(jobService.getJobById(ID))
+                .thenReturn(job);
+
+        // WHEN / THEN
+        mockMvc.perform(get(JOB_ID_PATH, ID))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(job)));
+
+        verify(jobService, times(1)).getJobById(ID);
+    }
+
+    @Test
+    void getJobByIdWithJobNotFound() throws Exception {
+        // GIVEN
+        when(jobService.getJobById(ID))
+                .thenThrow(new JobNotFoundException(ID));
+
+        // WHEN / THEN
+        mockMvc.perform(get(JOB_ID_PATH, ID))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().string("\"Job not found for id=" + ID + "\""));
+
+        verify(jobService, times(1)).getJobById(ID);
     }
 
     @Test

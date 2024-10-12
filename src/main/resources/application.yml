@@ -4,8 +4,6 @@ server:
     context-path: /tzatziki-example
 
 spring:
-  application:
-    name: tzatziki-example
   jackson:
     property-naming-strategy: com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
   datasource:

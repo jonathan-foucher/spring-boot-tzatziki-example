@@ -1,10 +1,12 @@
-## introduction
+## Introduction
 This project is an example of integration testing with tzatziki and Spring Boot.
 
-## run the project
+## Run the project
 ### Database
 Install postgres locally or run it through docker with :
-`docker run -p 5432:5432 -e POSTGRES_DB=my_database -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres postgres`
+```
+docker run -p 5432:5432 -e POSTGRES_DB=my_database -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres postgres
+```
 
 ### Application
 Once the postgres database is launched, you can start the Spring Boot project and try it out.
